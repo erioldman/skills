@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.1] - 2026-11-26
+
+### Changed
+
+- Merged the identical "push" and "tag and push" boundary rows; no behavior change.
+- Description triggers extended: version-control, git-init, and redacting
+  machine-specific values now route to the skill.
+
 ## [1.0.0] - 2026-11-26
 
 ### Added

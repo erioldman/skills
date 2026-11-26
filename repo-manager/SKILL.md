@@ -1,6 +1,6 @@
 ---
 name: repo-manager
-description: Turn any directory — a config, a code project, skills, notes — into a versioned GitHub repo with a Keep a Changelog CHANGELOG.md, tool-generated files gitignored, and machine-specific values redacted via a git clean filter; then commit, tag vX.Y.Z releases matching changelog sections, and push. Use when the user asks to back up or version a directory, "check <dir> and doc the changes", "handle it fully" after editing a managed repo, or says "tag and push" / "create the repo and push" / "no further than stage".
+description: Turn any directory — a config, a code project, skills, notes — into a versioned GitHub repo with a Keep a Changelog CHANGELOG.md, tool-generated files gitignored, and machine-specific values redacted via a git clean filter; then commit, tag vX.Y.Z releases matching changelog sections, and push. Use when the user asks to back up, version-control, or git-init a directory, or to redact machine-specific values, "check <dir> and doc the changes", "handle it fully" after editing a managed repo, or says "tag and push" / "create the repo and push" / "no further than stage".
 ---
 
 # Repo manager
@@ -116,8 +116,7 @@ values, the repo stores a redacted version.
 | "check <dir> and doc the changes" | Assess + changelog only |
 | "stage" / "NO FURTHER THAN STAGE" | `git add`, stop |
 | "commit" / "commit changes" | Commit only, no tag/push |
-| "push" / "push changes" | Changelog version if needed, commit if needed, tag, push |
-| "tag and push" | Changelog version if needed, commit if needed, tag, push |
+| "push" / "push changes" / "tag and push" | Changelog version if needed, commit if needed, tag, push |
 | "create the repo and push" | Commit → `gh repo create` → verify visibility |
 | "handle it fully" | Full maintenance cycle: diff → docs → commit → tag → push |
 
