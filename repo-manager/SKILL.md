@@ -107,7 +107,8 @@ values, the repo stores a redacted version.
    (placeholders in `git diff`, real values on disk).
 3. Update docs that exist (README sections, changelog): add a new
    `## [X.Y.Z] - YYYY-MM-DD` section under the header with `### Added`/`### Changed`.
-4. `git add -A` → commit → tag → push. Report commit hash, tag, and pushed refs.
+4. `git add -A` → commit → tag → push. Report the commit hash as a hyperlink to the
+   remote commit (when a remote exists), plus tag and pushed refs.
 
 ## Boundary phrases
 
