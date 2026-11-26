@@ -14,7 +14,8 @@ match its conventions.
 
 - **No `Co-authored-by` trailer.** Commit messages are a short imperative subject line,
   optional short bullet body, nothing else.
-- **CHANGELOG.md always; README only when asked.** Changelog follows Keep a Changelog
+- **CHANGELOG.md and README always.** Both are living documentation and must always
+  reflect the current state of the repo. Changelog follows Keep a Changelog
   (https://keepachangelog.com/en/1.1.0/) with this header block:
 
   ```markdown
@@ -24,6 +25,12 @@ match its conventions.
 
   The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ```
+
+  Every change that alters the repo's state — new, renamed, or removed files, new
+  functions, changed behavior — updates both docs in the same cycle: a changelog
+  section plus the matching README parts (structure tree, file descriptions,
+  instructions). Never ask permission for README updates; keeping it current is part
+  of the job.
 
 - **Private by default.** After creating any remote, verify:
   `gh repo view <owner>/<name> --json visibility` → must be `PRIVATE`. Make a repo
@@ -46,9 +53,11 @@ match its conventions.
 3. **CHANGELOG.md** with one `## [0.1.0] - Initial release` section, `### Added` bullets
    describing: what the repo starts from (a shipped default, a scaffold, a fresh start),
    every deliberate modification vs that base, and every extra file/hook/function with
-   what it does. No README unless the user asks for one.
-4. **Privacy pass** (next section).
-5. **Stage, then wait** — the default endpoint after setup is "staged, nothing committed"
+   what it does.
+4. **README.md** reflecting the current state of the repo: what it is, requirements,
+   installation, structure tree, and per-file descriptions.
+5. **Privacy pass** (next section).
+6. **Stage, then wait** — the default endpoint after setup is "staged, nothing committed"
    unless the user said to commit/push.
 
 ## Privacy: two levels
@@ -105,8 +114,10 @@ values, the repo stores a redacted version.
 1. `git status --short` + `git diff` (+ `git diff --cached`) to see the edit.
 2. If a filtered file changed, confirm the clean filter still redacts correctly
    (placeholders in `git diff`, real values on disk).
-3. Update docs that exist (README sections, changelog): add a new
-   `## [X.Y.Z] - YYYY-MM-DD` section under the header with `### Added`/`### Changed`.
+3. Update docs so they mirror the repo's current state: add a changelog section
+   `## [X.Y.Z] - YYYY-MM-DD` under the header with `### Added`/`### Changed`, and sync
+   the README (structure tree, file sections, changed instructions) — always, without
+   asking.
 4. `git add -A` → commit → tag → push. Report the commit hash as a hyperlink to the
    remote commit (when a remote exists), plus tag and pushed refs.
 
@@ -129,7 +140,7 @@ values, the repo stores a redacted version.
   `sed -e '/^SETUVAR fish_user_paths:/d' -e 's|~/projects/<name>|/path/to/<name>/|'`
   plus one machine-only deletion rule kept out of docs.
 - `CHANGELOG.md` documented the modifications + an "Excluded from the repository"
-  section; no README.
+  section.
 - Shipped as: commit (no trailer) → `gh repo create fish --private --source=. --remote=origin --push`
   → verify PRIVATE → `v0.1.0` tag. A later abbreviations tweak became `v0.1.1` via
   changelog section + commit + tag + push.

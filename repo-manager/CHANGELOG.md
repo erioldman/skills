@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.3] - 2026-11-26
+
+### Changed
+
+- READMEs are standing documentation, not opt-in: every repo gets a README (what it
+  is, requirements, installation, structure tree, per-file descriptions) at setup,
+  and every state-changing update syncs changelog and README in the same cycle
+  without asking permission.
+
 ## [1.0.2] - 2026-11-26
 
 ### Changed

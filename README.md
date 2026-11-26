@@ -6,7 +6,7 @@ and load.
 
 | Skill | What it does |
 |-------|--------------|
-| [repo-manager](./repo-manager/) | Owns the full lifecycle of a personal repo — assess, changelog, privacy pass, commit, tag, push, maintain — for any directory: configs, code, skills, notes. |
+| [repo-manager](./repo-manager/) | Owns the full lifecycle of a personal repo — assess, changelog, README, privacy pass, commit, tag, push, maintain — for any directory: configs, code, skills, notes. |
 | [teach-me](./teach-me/) | Turns recent work or a named topic into an interactive, one-lesson-at-a-time course grounded in real diffs and evidence. |
 
 ## Install
