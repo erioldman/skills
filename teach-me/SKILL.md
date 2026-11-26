@@ -85,20 +85,9 @@ recap: every lesson's takeaway, one line each.
 
 ## Worked example
 
-For a session that added a tray-only mode to a Tauri app and fixed a data-loss bug, the map was:
-
-| # | Lesson | Files | Concept |
-|---|--------|-------|---------|
-| 1 | How a UI toggle reaches Rust | lib.rs | Option chains, schema-less settings |
-| 2 | Start minimized to tray | tauri.conf.json, lib.rs | Window lifecycle, hidden-webview execution |
-| 3 | Position memory | lib.rs | Single source of truth, Option.or fallback |
-| 4 | Taskbar hiding | lib.rs, linux_windowing.rs | X11/EWMH hints, dropping an abstraction layer |
-| 5 | Preferences wiring | index.html, dashboard.js | The four places a setting lives |
-| 6 | The data-loss bug | note.js | Cache invalidation, read-modify-write |
-| 7 | CSS spacing | dashboard.css | One-directional vertical rhythm |
-| 8 | PR prep | — | Upstream contribution structure |
-
-Lesson 3 then opened with the bug ("tray-opened notes forgot their position"), pasted the
-real `Option.or` hunk, walked it, named the principle (fallback at the chokepoint), kept the
-physical-vs-logical pixel caveat, and ended: *"Takeaway: when several entry points need the
-same behavior, fix it at the shared chokepoint. — next for Lesson 4."*
+A Tauri tray-mode session produced an 8-lesson map from "How a UI toggle reaches Rust"
+to "PR prep". Lesson 3 (Position memory) opened with the bug ("tray-opened notes forgot
+their position"), walked the real `Option.or` hunk, named the principle (fallback at the
+chokepoint), kept the physical-vs-logical pixel caveat, and ended: *"Takeaway: when
+several entry points need the same behavior, fix it at the shared chokepoint. — next
+for Lesson 4."*
