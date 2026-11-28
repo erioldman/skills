@@ -1,6 +1,6 @@
 ---
 name: repo-manager
-description: Turn any directory — a config, a code project, skills, notes — into a versioned GitHub repo with a Keep a Changelog CHANGELOG.md, tool-generated files gitignored, and machine-specific values redacted via a git clean filter; then commit, tag vX.Y.Z releases matching changelog sections, and push. Use when the user asks to back up, version-control, or git-init a directory, or to redact machine-specific values, "check <dir> and doc the changes", "handle it fully" after editing a managed repo, or says "tag and push" / "create the repo and push" / "no further than stage".
+description: Turn any directory — a config, a code project, skills, notes — into a versioned GitHub repo with a Keep a Changelog CHANGELOG.md, tool-generated files gitignored, and machine-specific values redacted via a git clean filter; then commit, tag vX.Y.Z releases matching changelog sections, and push. Use when the user asks to back up, version-control, or git-init a directory, or to redact machine-specific values, or to manage the doc/stage/commit/tag/push lifecycle of an already managed repo.
 ---
 
 # Repo manager
@@ -27,20 +27,32 @@ match its conventions.
   ```
 
   Every change that alters the repo's state — new, renamed, or removed files, new
-  functions, changed behavior — updates both docs in the same cycle: a changelog
-  section plus the matching README parts (structure tree, file descriptions,
-  instructions). Never ask permission for README updates; keeping it current is part
-  of the job.
+  functions, changed behavior — updates both docs in the same cycle: an entry under
+  the changelog's `## [Unreleased]` section (`### Added`/`### Changed`/`### Fixed`)
+  plus the matching README parts (structure tree, file descriptions, instructions).
+  Never ask permission for README updates; keeping it current is part of the job.
+  Extend the existing `## [Unreleased]` section — never open a second one.
 
 - **Private by default.** After creating any remote, verify:
   `gh repo view <owner>/<name> --json visibility` → must be `PRIVATE`. Make a repo
   public only when the user explicitly asks; then verify visibility matches exactly
   what they asked for.
 - **No macOS junk in .gitignore** (no `.DS_Store` section unless the project is on macOS).
-- **Always push with a tag.** A bare "push" means: version the changelog if needed,
-  commit if needed, tag, push. No push goes out without a version tag.
-- **Respect stage boundaries.** "no push yet", "no remote", "NO FURTHER THAN STAGE",
-  "do not commit" are hard stops. Stage means `git add` only — no commit, no remote, no tag.
+- **Always push with a tag.** A push is a release: version the Unreleased section,
+  tag, push. No push goes out without a version tag. Never force-push unless the
+  user explicitly asks.
+- **Call semantics — each call means the full chain up to and including itself.**
+  The cycle order is always: doc change (README/CHANGELOG, see "CHANGELOG.md and
+  README always") → stage → commit → push. Whatever the wording, a request maps to
+  one of these steps, and everything from the start of the chain through that step
+  runs: staging = doc change + `git add`; committing = doc change + stage + commit;
+  pushing = doc change + stage + commit + release (version Unreleased, tag) + push.
+  Versions and tags belong to push only — a commit request never picks a version
+  number or creates a tag.
+- **Respect stated limits.** Any request that sets a boundary — hold off on pushing,
+  keep it local, nothing beyond staging or committing, no remote — is a hard stop:
+  the chain runs up to the last allowed step and stops there. The stage step itself
+  is `git add` only.
 - Repos live on branch `main`. Remote name `origin`. GitHub account comes from `gh auth status`.
 
 ## New repo setup
@@ -50,15 +62,16 @@ match its conventions.
    'key|token|secret|password|api'`); check `git status` and `gh auth status`.
    Report the assessment (what's worth committing, what's generated, what's sensitive).
 2. **Init** (if not already a repo): `git init -b main`.
-3. **CHANGELOG.md** with one `## [0.1.0] - Initial release` section, `### Added` bullets
-   describing: what the repo starts from (a shipped default, a scaffold, a fresh start),
-   every deliberate modification vs that base, and every extra file/hook/function with
-   what it does.
+3. **CHANGELOG.md** with the header block above, a `## [Unreleased]` section, and
+   `### Added` bullets describing: what the repo starts from (a shipped default, a
+   scaffold, a fresh start), every deliberate modification vs that base, and every
+   extra file/hook/function with what it does. The first push renames this section
+   to `## [0.1.0] - <date>`.
 4. **README.md** reflecting the current state of the repo: what it is, requirements,
    installation, structure tree, and per-file descriptions.
 5. **Privacy pass** (next section).
-6. **Stage, then wait** — the default endpoint after setup is "staged, nothing committed"
-   unless the user said to commit/push.
+6. **Stage, then wait** — the default endpoint after setup is staged, nothing
+   committed, unless the user asks to go further.
 
 ## Privacy: two levels
 
@@ -95,42 +108,56 @@ values, the repo stores a redacted version.
 
 ## Commit, tag, push
 
-- **Tag every release** with an annotated tag matching its changelog section:
-  `git tag -a v0.1.0 -m "<subject>"`. Version bumps follow the changelog: new
-  capability → minor (0.2.0), tweak/fix → patch (0.1.1). The tagged commit must contain
-  its own changelog entry — fold a version bump into the change commit via
-  `git commit --amend --no-edit` **only when that commit is unpushed** (verify with
+- **Release at push, not at commit.** Commits stay unversioned; the push is the
+  release point. A push converts `## [Unreleased]` into `## [X.Y.Z] - YYYY-MM-DD`,
+  version derived from its content: new capability → minor (0.2.0), tweak/fix →
+  patch (0.1.1). The tag then always describes everything that actually ships, even
+  when several calls chained up before it. Fold the renamed section into the
+  unpushed change commit via `git commit --amend --no-edit` (verify with
   `git log origin/main..main`); otherwise make a small release commit.
+- **Tag every release** with an annotated tag matching its changelog section:
+  `git tag -a v0.2.0 -m "<subject>"`. If the computed tag already exists, the version
+  is stale — bump to the next free patch/minor. Never overwrite or move a tag.
+- **Sync before pushing.** `git fetch origin` and check `git log main..origin/main`;
+  if the remote is ahead, `git rebase origin/main` first — these repos move between
+  machines. Force-push only when the user explicitly asks for it.
 - **Monorepos:** one CHANGELOG.md per project; prefix tags with the project name —
   `<project>-vX.Y.Z`, e.g. `repo-manager-v1.0.0` — so they never collide.
+- **No origin yet?** A push request on a repo without a remote includes creating it —
+  same flow as creating the repo below.
 - **Create the remote + push in one step:**
   `gh repo create <name> --private --source=. --remote=origin --push --description "<project>"`
   Repo name = the directory's basename.
 - **Push tags** with `git push origin main --tags`, or `git push origin vX.Y.Z` for a
   single tag. After pushing, confirm with `git log --oneline --decorate -3`.
 
-## "Handle it fully" (maintenance on an existing repo)
+## Full maintenance (on an existing repo)
 
-1. `git status --short` + `git diff` (+ `git diff --cached`) to see the edit.
+1. `git status --short` + `git diff` (+ `git diff --cached`) to see the edit, and
+   re-run the setup secrets grep over changed files.
 2. If a filtered file changed, confirm the clean filter still redacts correctly
    (placeholders in `git diff`, real values on disk).
-3. Update docs so they mirror the repo's current state: add a changelog section
-   `## [X.Y.Z] - YYYY-MM-DD` under the header with `### Added`/`### Changed`, and sync
-   the README (structure tree, file sections, changed instructions) — always, without
-   asking.
-4. `git add -A` → commit → tag → push. Report the commit hash as a hyperlink to the
-   remote commit (when a remote exists), plus tag and pushed refs.
+3. Update docs so they mirror the repo's current state: changelog entries under
+   `## [Unreleased]` (`### Added`/`### Changed`/`### Fixed`), and sync the README
+   (structure tree, file sections, changed instructions) — always, without asking.
+4. `git add -A` → commit → release (version Unreleased, tag) → push. Report the
+   commit hash as a hyperlink to the remote commit (when a remote exists), plus tag
+   and pushed refs.
 
-## Boundary phrases
+## Request semantics
 
-| User says | Do |
+Map whatever the user says to intent, then run the chain up to and including the
+matching step — always starting from the doc change, per the hard preferences.
+
+| Intent | What runs |
 |---|---|
-| "check <dir> and doc the changes" | Assess + changelog only |
-| "stage" / "NO FURTHER THAN STAGE" | `git add`, stop |
-| "commit" / "commit changes" | Commit only, no tag/push |
-| "push" / "push changes" / "tag and push" | Changelog version if needed, commit if needed, tag, push |
-| "create the repo and push" | Commit → `gh repo create` → verify visibility |
-| "handle it fully" | Full maintenance cycle: diff → docs → commit → tag → push |
+| Review / document the changes, nothing more | Assess + doc change — not even staged |
+| Stop at staging | Doc change → `git add`, stop |
+| Commit | Doc change → stage → commit — no version, no tag, no push |
+| Push / publish / get it onto GitHub | Doc change → stage → commit → version Unreleased → tag → push |
+| Push, but no remote exists yet | Same as creating the repo: private `gh repo create` + push + visibility check |
+| Create the repo / put it on GitHub | Doc change → stage → commit → version Unreleased → tag → `gh repo create` + push → verify visibility |
+| Take care of everything end to end | diff → doc change → stage → commit → release (version + tag) → push |
 
 ## Worked example (condensed)
 
@@ -141,6 +168,7 @@ values, the repo stores a redacted version.
   plus one machine-only deletion rule kept out of docs.
 - `CHANGELOG.md` documented the modifications + an "Excluded from the repository"
   section.
-- Shipped as: commit (no trailer) → `gh repo create fish --private --source=. --remote=origin --push`
-  → verify PRIVATE → `v0.1.0` tag. A later abbreviations tweak became `v0.1.1` via
-  changelog section + commit + tag + push.
+- Shipped as: commit (no trailer) → Unreleased renamed to `[0.1.0] - <date>`, tagged
+  `v0.1.0` → `gh repo create fish --private --source=. --remote=origin --push`
+  → verify PRIVATE → `git push origin v0.1.0`. A later abbreviations tweak: entries
+  under Unreleased; the next push renamed it to `[0.1.1]`, tagged `v0.1.1`, pushed.

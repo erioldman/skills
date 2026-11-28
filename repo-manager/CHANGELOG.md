@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.4] - 2026-11-28
+
+### Changed
+
+- New repos start from a `## [Unreleased]` section; the first push renames it to
+  `## [0.1.0] - <date>` instead of creating an initial-release section.
+- Call semantics: every request maps to one step of the doc → stage → commit → push
+  chain and runs everything up to and including it; versions and tags belong to push
+  only — a commit request never picks a version or creates a tag.
+- Release moved to push, not commit: a push converts `## [Unreleased]` into
+  `## [X.Y.Z] - <date>`, so the tag always describes everything that ships.
+- Sync before pushing: fetch and rebase onto `origin/main` when the remote is ahead;
+  force-push only on explicit request.
+- Maintenance re-runs the setup secrets grep over changed files.
+- Description triggers simplified from specific boundary phrases to general
+  lifecycle-management requests.
+
 ## [1.0.3] - 2026-11-26
 
 ### Changed
